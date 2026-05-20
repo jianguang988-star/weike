@@ -8,3 +8,4 @@ coverage
 prisma/dev.db
 *.tsbuildinfo
 public/uploads
+backups
