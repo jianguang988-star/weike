@@ -2,6 +2,11 @@ import type { Visit } from "@prisma/client";
 
 export const STANDARD_FOLLOWUP_DAYS = [0, 3, 7, 15, 30, 49];
 
+type ReminderFollowup = {
+  createdAt?: Date | string;
+  status: string | null;
+};
+
 export function isOnsiteVisitType(type: string | null | undefined) {
   return type === "来访" || type === "复访" || type === "到访";
 }
@@ -103,6 +108,16 @@ function isSameDate(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
+function isOnlineFollowupType(type: string | null | undefined) {
+  return type === "回访" || type === "跟进记录";
+}
+
+function toDate(value: Date | string | null | undefined) {
+  if (!value) return null;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 export function getStandardReminderForDate(baseDate: Date, targetDate = new Date()) {
   for (const days of STANDARD_FOLLOWUP_DAYS) {
     const dueDate = addDays(baseDate, days);
@@ -142,6 +157,83 @@ export function getReminderState(dueDate: Date, today = new Date()) {
   if (diffDays < 0) return `已逾期${Math.abs(diffDays)}天`;
   if (diffDays === 0) return "今天回访";
   return `${diffDays}天后`;
+}
+
+export function isReminderCleared(latestFollowup?: ReminderFollowup | null) {
+  return latestFollowup?.status === "done";
+}
+
+export function hasFollowupActivityOnDate(
+  visits: Visit[],
+  latestFollowup: ReminderFollowup | null | undefined,
+  targetDate: Date,
+  afterDate?: Date
+) {
+  const latestFollowupCreatedAt = toDate(latestFollowup?.createdAt);
+  if (
+    latestFollowupCreatedAt &&
+    isSameDate(latestFollowupCreatedAt, targetDate) &&
+    (!afterDate || latestFollowupCreatedAt >= afterDate)
+  ) {
+    return true;
+  }
+
+  return visits.some((visit) => {
+    if (!isOnlineFollowupType(visit.visitType)) return false;
+    const activityDate = getVisitBaseDate(visit);
+    return isSameDate(activityDate, targetDate) && (!afterDate || activityDate >= afterDate);
+  });
+}
+
+export function getPendingNextReminder(
+  visits: Visit[],
+  latestFollowup?: ReminderFollowup | null,
+  today = new Date()
+) {
+  if (isReminderCleared(latestFollowup)) return null;
+
+  const latestOnsiteVisit = getLatestOnsiteVisit(visits);
+  if (!latestOnsiteVisit) return null;
+
+  const baseDate = getVisitBaseDate(latestOnsiteVisit);
+  let nextReminder = getNextStandardReminder(baseDate, today);
+  if (!nextReminder) return null;
+  if (
+    isSameDate(nextReminder.dueDate, today) &&
+    hasFollowupActivityOnDate(visits, latestFollowup, today, baseDate)
+  ) {
+    nextReminder = getNextStandardReminder(baseDate, addDays(today, 1));
+  }
+  if (!nextReminder) return null;
+
+  return {
+    ...nextReminder,
+    latestOnsiteVisit,
+    baseDate,
+    state: getReminderState(nextReminder.dueDate, today)
+  };
+}
+
+export function getPendingTodayReminder(
+  visits: Visit[],
+  latestFollowup?: ReminderFollowup | null,
+  today = new Date()
+) {
+  if (isReminderCleared(latestFollowup)) return null;
+
+  const latestOnsiteVisit = getLatestOnsiteVisit(visits);
+  if (!latestOnsiteVisit) return null;
+
+  const baseDate = getVisitBaseDate(latestOnsiteVisit);
+  const reminder = getStandardReminderForDate(baseDate, today);
+  if (!reminder) return null;
+  if (hasFollowupActivityOnDate(visits, latestFollowup, today, baseDate)) return null;
+
+  return {
+    ...reminder,
+    latestOnsiteVisit,
+    baseDate
+  };
 }
 
 export function standardReminderScript(

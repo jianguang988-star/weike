@@ -16,8 +16,7 @@ import {
   getFirstOnsiteVisit,
   getLatestOnsiteVisit,
   getLatestRevisit,
-  getNextStandardReminder,
-  getReminderState,
+  getPendingNextReminder,
   getVisitBaseDate
 } from "@/lib/reminders";
 
@@ -227,8 +226,7 @@ export default async function CustomersPage({
           const concerns = parseList(customer.concerns).join("、") || "未填写";
           const firstVisit = getFirstOnsiteVisit(customer.visits);
           const latestRevisit = getLatestRevisit(customer.visits);
-          const latestOnsiteVisit = getLatestOnsiteVisit(customer.visits);
-          const nextReminder = latestOnsiteVisit ? getNextStandardReminder(getVisitBaseDate(latestOnsiteVisit)) : null;
+          const nextReminder = getPendingNextReminder(customer.visits, latestFollowup);
           const stage = buildCustomerStage(customer);
           const warning = buildCustomerWarning(customer);
           const warningClass =
@@ -309,7 +307,7 @@ export default async function CustomersPage({
                   </p>
                   <p>
                     <span className="text-zinc-500">标准提醒：</span>
-                    {nextReminder ? `${formatDate(nextReminder.dueDate)} / ${getReminderState(nextReminder.dueDate)}` : "未生成"}
+                    {nextReminder ? `${formatDate(nextReminder.dueDate)} / ${nextReminder.state}` : "未生成"}
                   </p>
                 </div>
               </details>
@@ -375,8 +373,7 @@ export default async function CustomersPage({
                 const latestFollowup = customer.followups[0];
                 const firstVisit = getFirstOnsiteVisit(customer.visits);
                 const latestRevisit = getLatestRevisit(customer.visits);
-                const latestOnsiteVisit = getLatestOnsiteVisit(customer.visits);
-                const nextReminder = latestOnsiteVisit ? getNextStandardReminder(getVisitBaseDate(latestOnsiteVisit)) : null;
+                const nextReminder = getPendingNextReminder(customer.visits, latestFollowup);
                 return (
                   <tr key={customer.id} className="hover:bg-zinc-50">
                     <td className="whitespace-nowrap px-4 py-3">
@@ -404,7 +401,7 @@ export default async function CustomersPage({
                       {nextReminder ? (
                         <div>
                           <div>{formatDate(nextReminder.dueDate)}</div>
-                          <div className="text-xs text-zinc-500">{nextReminder.label} / {getReminderState(nextReminder.dueDate)}</div>
+                          <div className="text-xs text-zinc-500">{nextReminder.label} / {nextReminder.state}</div>
                         </div>
                       ) : (
                         "未生成"

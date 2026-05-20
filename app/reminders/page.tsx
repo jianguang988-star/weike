@@ -4,9 +4,7 @@ import { prisma } from "@/lib/prisma";
 import {
   formatDate,
   getFirstOnsiteVisit,
-  getLatestOnsiteVisit,
-  getNextStandardReminder,
-  getReminderState,
+  getPendingNextReminder,
   getVisitBaseDate,
   standardReminderScript
 } from "@/lib/reminders";
@@ -26,24 +24,19 @@ export default async function RemindersPage() {
   const reminders = customers
     .map((customer) => {
       const firstVisit = getFirstOnsiteVisit(customer.visits);
-      const latestOnsiteVisit = getLatestOnsiteVisit(customer.visits);
-      if (!firstVisit || !latestOnsiteVisit) return null;
       const latestFollowup = customer.followups[0];
-      if (latestFollowup?.status === "done") return null;
-
-      const baseDate = getVisitBaseDate(latestOnsiteVisit);
-      const nextReminder = getNextStandardReminder(baseDate);
-      if (!nextReminder) return null;
+      const nextReminder = getPendingNextReminder(customer.visits, latestFollowup);
+      if (!firstVisit || !nextReminder) return null;
 
       return {
         customer,
         firstVisit,
-        latestOnsiteVisit,
+        latestOnsiteVisit: nextReminder.latestOnsiteVisit,
         firstBaseDate: getVisitBaseDate(firstVisit),
-        baseDate,
+        baseDate: nextReminder.baseDate,
         dueDate: nextReminder.dueDate,
         label: nextReminder.label,
-        state: getReminderState(nextReminder.dueDate),
+        state: nextReminder.state,
         latestFollowup
       };
     })

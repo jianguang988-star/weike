@@ -4,11 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { buildCustomerStage, buildCustomerWarning } from "@/lib/customer-intelligence";
 import { display } from "@/lib/format";
 import {
-  getLatestOnsiteVisit,
-  getNextStandardReminder,
-  getReminderState,
-  getStandardReminderForDate,
-  getVisitBaseDate
+  getPendingNextReminder,
+  getPendingTodayReminder
 } from "@/lib/reminders";
 
 export const dynamic = "force-dynamic";
@@ -24,16 +21,13 @@ export default async function HomePage() {
     },
     orderBy: { updatedAt: "desc" }
   });
-  const todayReminderCount = customers.filter((customer) => {
-    const latestOnsiteVisit = getLatestOnsiteVisit(customer.visits);
-    return latestOnsiteVisit ? Boolean(getStandardReminderForDate(getVisitBaseDate(latestOnsiteVisit))) : false;
-  }).length;
+  const todayReminderCount = customers.filter((customer) =>
+    Boolean(getPendingTodayReminder(customer.visits, customer.followups[0]))
+  ).length;
   const reminderItems = customers
     .map((customer) => {
-      const latestOnsiteVisit = getLatestOnsiteVisit(customer.visits);
-      if (!latestOnsiteVisit) return null;
-      const nextReminder = getNextStandardReminder(getVisitBaseDate(latestOnsiteVisit));
-      return nextReminder ? { customer, dueDate: nextReminder.dueDate, state: getReminderState(nextReminder.dueDate) } : null;
+      const nextReminder = getPendingNextReminder(customer.visits, customer.followups[0]);
+      return nextReminder ? { customer, dueDate: nextReminder.dueDate, state: nextReminder.state } : null;
     })
     .filter(Boolean);
   const overdueCount = reminderItems.filter((item) => item?.state.startsWith("已逾期")).length;
