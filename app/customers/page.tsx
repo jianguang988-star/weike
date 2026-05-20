@@ -351,7 +351,7 @@ export default async function CustomersPage({
 
       <div className="hidden overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-[0_1px_2px_rgba(24,24,27,0.04)] md:block">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-zinc-200 text-sm">
+          <table className="crm-desktop-table min-w-[1520px] divide-y divide-zinc-200 text-sm">
             <thead className="bg-zinc-50 text-left text-zinc-600">
               <tr>
                 <th className="px-4 py-3 font-medium">客户姓名</th>

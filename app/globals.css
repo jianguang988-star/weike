@@ -28,6 +28,78 @@ pre {
   overflow-wrap: anywhere;
 }
 
+.crm-desktop-table {
+  table-layout: fixed;
+}
+
+.crm-desktop-table th {
+  white-space: nowrap;
+}
+
+.crm-desktop-table th,
+.crm-desktop-table td {
+  vertical-align: middle;
+}
+
+.crm-desktop-table td {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-height: 1.55;
+}
+
+.crm-desktop-table th:nth-child(1),
+.crm-desktop-table td:nth-child(1) {
+  width: 210px;
+}
+
+.crm-desktop-table th:nth-child(2),
+.crm-desktop-table td:nth-child(2) {
+  width: 100px;
+}
+
+.crm-desktop-table th:nth-child(3),
+.crm-desktop-table td:nth-child(3) {
+  width: 150px;
+}
+
+.crm-desktop-table th:nth-child(4),
+.crm-desktop-table td:nth-child(4) {
+  width: 90px;
+  text-align: center;
+}
+
+.crm-desktop-table th:nth-child(5),
+.crm-desktop-table td:nth-child(5) {
+  width: 110px;
+}
+
+.crm-desktop-table th:nth-child(6),
+.crm-desktop-table td:nth-child(6),
+.crm-desktop-table th:nth-child(7),
+.crm-desktop-table td:nth-child(7) {
+  width: 230px;
+  vertical-align: top;
+}
+
+.crm-desktop-table th:nth-child(8),
+.crm-desktop-table td:nth-child(8),
+.crm-desktop-table th:nth-child(9),
+.crm-desktop-table td:nth-child(9),
+.crm-desktop-table th:nth-child(10),
+.crm-desktop-table td:nth-child(10) {
+  width: 125px;
+}
+
+.crm-desktop-table th:nth-child(11),
+.crm-desktop-table td:nth-child(11) {
+  width: 160px;
+}
+
+.crm-desktop-table th:nth-child(12),
+.crm-desktop-table td:nth-child(12) {
+  width: 100px;
+}
+
 .summary-clamp {
   display: -webkit-box;
   -webkit-line-clamp: 2;
