@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id              Int        @id @default(autoincrement())
+  name            String?
+  phone           String?
+  wechat          String?
+  source          String?
+  agentName       String?    @map("agent_name")
+  agentStore      String?    @map("agent_store")
+  budget          String?
+  preferredUnits  String?    @map("preferred_units")
+  concerns        String?
+  focusPoints     String?    @map("focus_points")
+  intentionLevel  String?    @map("intention_level")
+  summary         String?
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+  visits          Visit[]
+  followups       Followup[]
+  rawNotes        RawNote[]
+  salesContexts   CustomerSalesContext[]
+  recommendations MaterialRecommendation[]
+  responseDrafts  SalesResponseDraft[]
+
+  @@map("customers")
+}
+
+model Visit {
+  id         Int      @id @default(autoincrement())
+  customerId Int      @map("customer_id")
+  visitTime  String?  @map("visit_time")
+  visitType  String?  @map("visit_type")
+  content    String?
+  createdAt  DateTime @default(now()) @map("created_at")
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@map("visits")
+}
+
+model Followup {
+  id              Int      @id @default(autoincrement())
+  customerId      Int      @map("customer_id")
+  recommendedTime String?  @map("recommended_time")
+  priority        String?
+  keyPoint        String?  @map("key_point")
+  script          String?
+  status          String   @default("pending")
+  createdAt       DateTime @default(now()) @map("created_at")
+  customer        Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@map("followups")
+}
+
+model RawNote {
+  id           Int      @id @default(autoincrement())
+  customerId   Int      @map("customer_id")
+  rawText      String   @map("raw_text")
+  aiResultJson String   @map("ai_result_json")
+  createdAt    DateTime @default(now()) @map("created_at")
+  customer     Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@map("raw_notes")
+}
+
+model SalesMaterial {
+  id                    Int                       @id @default(autoincrement())
+  title                 String
+  materialType          String                    @map("material_type")
+  description           String?
+  summary               String?
+  contentText           String?                   @map("content_text")
+  fileUrl               String?                   @map("file_url")
+  fileName              String?                   @map("file_name")
+  fileType              String?                   @map("file_type")
+  fileSize              Int?                      @map("file_size")
+  coverUrl              String?                   @map("cover_url")
+  projectName           String?                   @map("project_name")
+  regionName            String?                   @map("region_name")
+  competitorName        String?                   @map("competitor_name")
+  status                String                    @default("active")
+  visibility            String                    @default("internal")
+  createdBy             String?                   @map("created_by")
+  updatedBy             String?                   @map("updated_by")
+  createdAt             DateTime                  @default(now()) @map("created_at")
+  updatedAt             DateTime                  @updatedAt @map("updated_at")
+  tags                  SalesMaterialTagRelation[]
+  recommendations       MaterialRecommendation[]
+
+  @@map("sales_materials")
+}
+
+model MaterialTagCategory {
+  id        Int           @id @default(autoincrement())
+  code      String        @unique
+  name      String
+  sortOrder Int           @default(0) @map("sort_order")
+  createdAt DateTime      @default(now()) @map("created_at")
+  tags      MaterialTag[]
+
+  @@map("material_tag_categories")
+}
+
+model MaterialTag {
+  id          Int                        @id @default(autoincrement())
+  categoryId  Int                        @map("category_id")
+  code        String
+  name        String
+  sortOrder   Int                        @default(0) @map("sort_order")
+  createdAt   DateTime                   @default(now()) @map("created_at")
+  category    MaterialTagCategory        @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  materials   SalesMaterialTagRelation[]
+
+  @@unique([categoryId, code])
+  @@map("material_tags")
+}
+
+model SalesMaterialTagRelation {
+  id         Int           @id @default(autoincrement())
+  materialId Int           @map("material_id")
+  tagId      Int           @map("tag_id")
+  createdAt  DateTime      @default(now()) @map("created_at")
+  material   SalesMaterial @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  tag        MaterialTag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([materialId, tagId])
+  @@map("sales_material_tag_relations")
+}
+
+model CustomerSalesContext {
+  id                     Int      @id @default(autoincrement())
+  customerId             Int      @map("customer_id")
+  currentProjectName     String?  @map("current_project_name")
+  comparedProjectName    String?  @map("compared_project_name")
+  comparedRegionName     String?  @map("compared_region_name")
+  primaryResistanceCode  String?  @map("primary_resistance_code")
+  secondaryResistanceCsv String?  @map("secondary_resistance_csv")
+  currentSceneCode       String?  @map("current_scene_code")
+  followGoalCode         String?  @map("follow_goal_code")
+  customerBudget         String?  @map("customer_budget")
+  customerFocus          String?  @map("customer_focus")
+  latestFollowNote       String?  @map("latest_follow_note")
+  updatedBy              String?  @map("updated_by")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+  customer               Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@map("customer_sales_contexts")
+}
+
+model MaterialRecommendation {
+  id                 Int           @id @default(autoincrement())
+  customerId         Int           @map("customer_id")
+  materialId         Int           @map("material_id")
+  recommendationType String        @map("recommendation_type")
+  score              Int
+  reason             String?
+  usedStatus         String        @default("pending") @map("used_status")
+  createdBy          String?       @map("created_by")
+  createdAt          DateTime      @default(now()) @map("created_at")
+  customer           Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  material           SalesMaterial @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  @@map("material_recommendations")
+}
+
+model SalesResponseDraft {
+  id             Int      @id @default(autoincrement())
+  customerId     Int      @map("customer_id")
+  sourceMaterialIds String? @map("source_material_ids")
+  responseText   String   @map("response_text")
+  strategyText   String?  @map("strategy_text")
+  createdBy      String?  @map("created_by")
+  createdAt      DateTime @default(now()) @map("created_at")
+  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@map("sales_response_drafts")
+}

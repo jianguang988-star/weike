@@ -1,0 +1,214 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: #f4f4f5;
+  color: #18181b;
+  -webkit-text-size-adjust: 100%;
+  min-height: 100vh;
+}
+
+textarea,
+input {
+  outline: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+p,
+dd,
+pre {
+  overflow-wrap: anywhere;
+}
+
+.summary-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.safe-bottom {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 0.75rem);
+}
+
+.home,
+.user,
+.plus,
+.bell {
+  position: relative;
+}
+
+.home::before {
+  content: "";
+  position: absolute;
+  inset: 4px 3px 3px;
+  border: 2px solid #94a3b8;
+  border-top: 0;
+  border-radius: 5px;
+}
+
+.home::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 3px;
+  width: 14px;
+  height: 14px;
+  border-left: 2px solid #94a3b8;
+  border-top: 2px solid #94a3b8;
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+
+.user::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 3px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid #94a3b8;
+  border-radius: 999px;
+}
+
+.user::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  bottom: 2px;
+  width: 18px;
+  height: 10px;
+  border: 2px solid #94a3b8;
+  border-radius: 999px 999px 4px 4px;
+}
+
+.plus::before,
+.plus::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  top: 11px;
+  height: 2px;
+  border-radius: 999px;
+  background: #94a3b8;
+}
+
+.plus::after {
+  left: 11px;
+  right: auto;
+  top: 5px;
+  width: 2px;
+  height: 16px;
+}
+
+.bell::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 4px;
+  width: 14px;
+  height: 15px;
+  border: 2px solid #94a3b8;
+  border-radius: 999px 999px 6px 6px;
+  border-bottom-width: 3px;
+}
+
+.bell::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  bottom: 1px;
+  width: 6px;
+  height: 3px;
+  border-radius: 999px;
+  background: #94a3b8;
+}
+
+a[data-active="true"] .home::before,
+a[data-active="true"] .home::after,
+a[data-active="true"] .user::before,
+a[data-active="true"] .user::after,
+a[data-active="true"] .bell::before {
+  border-color: #2563eb;
+}
+
+a[data-active="true"] .plus::before,
+a[data-active="true"] .plus::after,
+a[data-active="true"] .bell::after {
+  background: #2563eb;
+}
+
+@layer components {
+  .crm-shell {
+    @apply grid gap-4 sm:gap-5;
+  }
+
+  .crm-card {
+    @apply overflow-hidden rounded-2xl border border-zinc-200 bg-white p-4 shadow-[0_1px_2px_rgba(24,24,27,0.04)] sm:p-5;
+  }
+
+  .crm-card-muted {
+    @apply rounded-2xl border border-zinc-200 bg-zinc-50 p-4;
+  }
+
+  .crm-panel {
+    @apply rounded-2xl border border-zinc-200 bg-white shadow-[0_1px_2px_rgba(24,24,27,0.04)];
+  }
+
+  .crm-title {
+    @apply text-lg font-semibold tracking-normal text-zinc-950;
+  }
+
+  .crm-label {
+    @apply text-xs font-medium text-zinc-500;
+  }
+
+  .crm-muted {
+    @apply text-sm leading-6 text-zinc-500;
+  }
+
+  .crm-btn-primary {
+    @apply rounded-xl bg-zinc-950 px-4 py-3 text-sm font-semibold text-white shadow-sm transition active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-zinc-400;
+  }
+
+  .crm-btn-blue {
+    @apply rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-zinc-400;
+  }
+
+  .crm-btn-secondary {
+    @apply rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50 active:scale-[0.99];
+  }
+
+  .crm-input {
+    @apply rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm transition placeholder:text-zinc-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100;
+  }
+
+  .crm-textarea {
+    @apply rounded-xl border border-zinc-200 bg-white px-4 py-3 text-base leading-7 text-zinc-900 shadow-sm transition placeholder:text-zinc-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100;
+  }
+
+  .crm-badge {
+    @apply rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-xs font-medium text-zinc-600;
+  }
+
+  .crm-badge-blue {
+    @apply rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700;
+  }
+
+  .crm-badge-red {
+    @apply rounded-full border border-red-100 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700;
+  }
+
+  .crm-stat {
+    @apply overflow-hidden rounded-2xl border border-zinc-200 bg-white p-4 shadow-[0_1px_2px_rgba(24,24,27,0.04)];
+  }
+}

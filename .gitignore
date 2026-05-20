@@ -1,0 +1,10 @@
+node_modules
+.next
+dist
+coverage
+.env
+*.db
+*.db-journal
+prisma/dev.db
+*.tsbuildinfo
+public/uploads
