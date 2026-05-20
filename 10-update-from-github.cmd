@@ -27,7 +27,22 @@ if errorlevel 1 (
 )
 
 echo Pulling latest code from GitHub...
-"%GIT%" pull
+set "HAS_LOCAL_CHANGES="
+for /f "delims=" %%S in ('"%GIT%" status --porcelain') do set "HAS_LOCAL_CHANGES=1"
+
+if defined HAS_LOCAL_CHANGES (
+  echo Local changes found. Saving them before updating...
+  "%GIT%" stash push -u -m "auto-stash-before-update"
+  if errorlevel 1 (
+    echo.
+    echo Could not save local changes. Please send the error text above to Codex.
+    pause
+    exit /b 1
+  )
+  echo.
+)
+
+"%GIT%" pull --ff-only
 if errorlevel 1 (
   echo.
   echo Git pull failed. Please check your network, GitHub login, or local changes.
